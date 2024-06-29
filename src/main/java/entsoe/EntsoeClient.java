@@ -42,8 +42,8 @@ public class EntsoeClient implements EntsoeDefines {
 
     private static final String apiUrl = "https://web-api.tp.entsoe.eu/api"; // The URL of the ENTSOE API
     private static final String documentType = "A44"; // The day ahead prices document
-    private static final String in_Domain = "10Y1001A1001A82H"; // DE_LU (Germany)
-    private static final String out_Domain = in_Domain; // must be the same as in_Domain
+    private String in_Domain;
+    private String out_Domain;
 
     private final ApiRateLimiter apiRateLimiter = new ApiRateLimiter(60, Duration.ofMinutes(1), Duration.ofSeconds(1)); // max 60 requests per minute
 
@@ -54,10 +54,22 @@ public class EntsoeClient implements EntsoeDefines {
      * @param entsoeSecurityToken The ENTSOE_SECURITY_TOKEN as parameter - must not be null
      */
     public EntsoeClient(String entsoeSecurityToken) {
+        this(entsoeSecurityToken, "10Y1001A1001A82H");
+    }
+
+    /**
+     * Explicit constructor that takes the ENTSOE_SECURITY_TOKEN as parameter.
+     * @param entsoeSecurityToken The ENTSOE_SECURITY_TOKEN as parameter - must not be null
+     * @param domain The domain to request the data for, e.g. "10Y1001A1001A82H" for Germany, "10YNL----------L" for the Netherlands
+     * @see <a href="https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html#_areas">ENTSO-E API Guide - Areas</a>
+     */
+    public EntsoeClient(String entsoeSecurityToken, String domain) {
         if (entsoeSecurityToken==null) {
             throw new IllegalArgumentException("entsoeSecurityToken must not be null");
         }
         this.entsoeSecurityToken = entsoeSecurityToken;
+        this.in_Domain = domain;
+        this.out_Domain = domain;
     }
 
     /**
